@@ -3,6 +3,8 @@ package repositories
 import (
 	database "BTG-Test/src/apibtg/database"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	logger "github.com/sirupsen/logrus"
 )
@@ -10,10 +12,10 @@ import (
 type (
 	CommonRepository interface {
 		FindAll(query string) (*sql.Rows, error)
-		FindOne(query string, args ...interface{}) (*sql.Row, error)
-		// StoreOne(data Customer) (Customer, error)
+		FindById(query string, id int) (*sql.Row, error)
+		StoreOne(query string, data map[int]interface{}) (*sql.Row, error)
 		// Update(data Customer) (Customer, error)
-		// DeleteById(id int) error
+		DeleteById(table, column string, id int) error
 	}
 )
 
@@ -42,17 +44,59 @@ func (c *CommonRepositoryImpl) FindAll(query string) (*sql.Rows, error) {
 	return rows, nil
 }
 
-func (c *CommonRepositoryImpl) FindOne(query string, args ...interface{}) (*sql.Row, error) {
+func (c *CommonRepositoryImpl) FindById(query string, id int) (*sql.Row, error) {
+	db, errDb := database.GetConnectionBTG()
+	if errDb != nil {
+		logger.Error(errDb)
+		return nil, errDb
+	}
+	row := db.QueryRow(query, id)
+	if row.Err() != nil {
+		logger.Error(row.Err())
+		return nil, row.Err()
+	}
+	return row, nil
+
+}
+
+func (c *CommonRepositoryImpl) StoreOne(query string, data map[int]interface{}) (*sql.Row, error) {
 	db, errDb := database.GetConnectionBTG()
 	if errDb != nil {
 		logger.Error(errDb)
 		return nil, errDb
 	}
 
-	row := db.QueryRow(query, args)
+	values := createQuery(data)
+	row := db.QueryRow(query + values)
 	if row.Err() != nil {
 		logger.Error(row.Err())
 		return nil, row.Err()
 	}
 	return row, nil
+}
+
+func (c *CommonRepositoryImpl) DeleteById(table, column string, id int) error {
+	db, errDb := database.GetConnectionBTG()
+	if errDb != nil {
+		logger.Error(errDb)
+		return errDb
+	}
+
+	query := fmt.Sprintf("DELETE FROM \"BTG_Schema\".\"%v\" WHERE \"%v\" = $1", table, column)
+
+	_, errQuery := db.Exec(query, id)
+	if errQuery != nil {
+		return errQuery
+	}
+	return nil
+}
+
+func createQuery(params map[int]interface{}) string {
+	valSlice := make([]string, 0, len(params))
+
+	for i := 1; i <= len(params); i++ {
+		valSlice = append(valSlice, fmt.Sprintf("'%v'", params[i]))
+	}
+	values := strings.Join(valSlice, ",")
+	return fmt.Sprintf("VALUES(%v) RETURNING \"cst_id\"", values)
 }

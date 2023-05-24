@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	database "BTG-Test/src/apibtg/database"
 	models "BTG-Test/src/apibtg/models"
 
 	logger "github.com/sirupsen/logrus"
@@ -38,4 +39,73 @@ func (cst *CustomerRepositoryImpl) FindAllCustomer() ([]models.Customer, error) 
 		result = append(result, res)
 	}
 	return result, nil
+}
+
+func (cst *CustomerRepositoryImpl) FindCustomerById(id int) (models.Customer, error) {
+	var (
+		result models.Customer
+	)
+	query := "SELECT \"cst_id\",\"nationality_id\",\"cst_name\",\"cst_dob\",\"cst_phoneNum\",\"cst_email\" FROM \"BTG_Schema\".\"Customer\" WHERE \"cst_id\" = $1"
+	row, errQuery := cst.commonRepository.FindById(query, id)
+	if errQuery != nil {
+		logger.Error(errQuery)
+		return models.Customer{}, errQuery
+	}
+	row.Scan(&result.CustId, &result.NatId, &result.CustName, &result.CustDob, &result.CustPhone, &result.CustEmail)
+
+	return result, nil
+}
+
+func (cst *CustomerRepositoryImpl) AddCustomer(data models.Customer) (int, error) {
+	var (
+		custId int
+	)
+	req := map[int]interface{}{
+		1: data.NatId,
+		2: data.CustName,
+		3: data.CustDob,
+		4: data.CustPhone,
+		5: data.CustEmail,
+	}
+	query := "INSERT INTO \"BTG_Schema\".\"Customer\"(\"nationality_id\", \"cst_name\", \"cst_dob\",\"cst_phoneNum\", \"cst_email\") "
+
+	row, errQuery := cst.commonRepository.StoreOne(query, req)
+	if errQuery != nil {
+		logger.Error(errQuery)
+		return 0, errQuery
+	}
+	row.Scan(&custId)
+	return custId, nil
+}
+
+func (cst *CustomerRepositoryImpl) UpdateById(data models.Customer) (int, error) {
+	var (
+		id int
+	)
+	db, errDb := database.GetConnectionBTG()
+	if errDb != nil {
+		logger.Error(errDb)
+		return 0, errDb
+	}
+
+	query := "UPDATE \"BTG_Schema\".\"Customer\" SET \"nationality_id\"=$1, \"cst_name\"=$2, \"cst_dob\"=$3, \"cst_phoneNum\"=$4, \"cst_email\"=$5 WHERE \"cst_id\"=$6 RETURNING \"cst_id\""
+
+	errQuery := db.QueryRow(query, data.NatId, data.CustName, data.CustDob, data.CustPhone, data.CustEmail, data.CustId).Scan(&id)
+	if errQuery != nil {
+		logger.Error(errQuery)
+		return 0, errQuery
+	}
+
+	return id, nil
+
+}
+
+func (cst *CustomerRepositoryImpl) DeleteById(id int) error {
+	errQuery := cst.commonRepository.DeleteById("Customer", "cst_id", id)
+	if errQuery != nil {
+		logger.Error(errQuery)
+		return errQuery
+	}
+
+	return nil
 }
