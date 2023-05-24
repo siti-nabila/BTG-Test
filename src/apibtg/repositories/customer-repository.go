@@ -122,7 +122,7 @@ func (cst *CustomerRepositoryImpl) FindCustomerByIdWithChild(id int) (models.Cus
 		return models.CustomerFamily{}, errDb
 	}
 
-	query := `SELECT cst."cst_id", "nationality_id", "cst_name" AS "CustName", "cst_dob" AS "CustDoB", "cst_phoneNum" as "PhoneNo", "cst_email" as "CustEmail", "fl_id", "fl_relation", "fl_name" AS "FamName", "fl_dob" AS "FamDoB" FROM "BTG_Schema"."Customer" cst INNER JOIN "BTG_Schema"."family_list" fl ON fl."cst_id" = cst."cst_id" WHERE cst."cst_id" = $1`
+	query := `SELECT cst."cst_id", "nationality_id", "cst_name" AS "CustName", "cst_dob" AS "CustDoB", "cst_phoneNum" as "PhoneNo", "cst_email" as "CustEmail", "fl_id", fl."cst_id", "fl_relation", "fl_name" AS "FamName", "fl_dob" AS "FamDoB" FROM "BTG_Schema"."Customer" cst INNER JOIN "BTG_Schema"."family_list" fl ON fl."cst_id" = cst."cst_id" WHERE cst."cst_id" = $1`
 
 	rows, errQuery := db.Query(query, id)
 	if errQuery != nil {
@@ -131,7 +131,7 @@ func (cst *CustomerRepositoryImpl) FindCustomerByIdWithChild(id int) (models.Cus
 	}
 	defer rows.Close()
 	for rows.Next() {
-		errRows := rows.Scan(&result.Customer.CustId, &result.Customer.NatId, &result.Customer.CustName, &result.Customer.CustDob, &result.Customer.CustPhone, &result.Customer.CustEmail, &family.FamId, &family.FamRel, &family.FamName, &family.FamDob)
+		errRows := rows.Scan(&result.Customer.CustId, &result.Customer.NatId, &result.Customer.CustName, &result.Customer.CustDob, &result.Customer.CustPhone, &result.Customer.CustEmail, &family.FamId, &family.CustId, &family.FamRel, &family.FamName, &family.FamDob)
 		if errRows != nil {
 			logger.Error(errRows)
 			return models.CustomerFamily{}, errRows

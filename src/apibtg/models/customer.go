@@ -8,6 +8,7 @@ type (
 		GetCustomerById(resp http.ResponseWriter, req *http.Request)
 		GetCustomerByIdWithFamily(resp http.ResponseWriter, req *http.Request)
 		PostCustomer(resp http.ResponseWriter, req *http.Request)
+		PostCustomerWithFamily(resp http.ResponseWriter, req *http.Request)
 		PutCustomerById(resp http.ResponseWriter, req *http.Request)
 		DeleteCustomerById(resp http.ResponseWriter, req *http.Request)
 	}

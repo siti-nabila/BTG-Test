@@ -54,7 +54,7 @@ func main() {
 	famService := services.CreateFamilyServiceImpl(famRepo)
 	// Init Controller
 	controllers.CreateNationalityController(router, natService)
-	controllers.CreateCustomerController(router, cstService)
+	controllers.CreateCustomerController(router, cstService, famService)
 	controllers.CreateFamilyController(router, famService)
 	c := cors.AllowAll()
 	handler := c.Handler(router)

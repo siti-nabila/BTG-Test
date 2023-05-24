@@ -2,6 +2,7 @@ package services
 
 import (
 	models "BTG-Test/src/apibtg/models"
+	"BTG-Test/src/apibtg/utils"
 )
 
 type CustomerServiceImpl struct {
@@ -19,7 +20,14 @@ func (cst *CustomerServiceImpl) GetAllCustomer() ([]models.Customer, error) {
 }
 
 func (cst *CustomerServiceImpl) FindCustomerById(id int) (models.Customer, error) {
-	return cst.customerRepo.FindCustomerById(id)
+
+	customer, errCust := cst.customerRepo.FindCustomerById(id)
+	if errCust != nil {
+		return models.Customer{}, errCust
+	}
+	customer.CustDob, _ = utils.SplitDateTime(customer.CustDob)
+
+	return customer, nil
 }
 
 func (cst *CustomerServiceImpl) AddCustomer(data models.Customer) (models.Customer, error) {
@@ -58,6 +66,8 @@ func (cst *CustomerServiceImpl) FindCustomerByIdWithFamily(id int) (models.Custo
 	if errCust != nil {
 		return models.CustomerFamily{}, errCust
 	}
+
+	res.Customer.CustDob, _ = utils.SplitDateTime(res.Customer.CustDob)
 
 	return res, nil
 

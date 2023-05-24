@@ -2,6 +2,7 @@ package utils
 
 import (
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -12,4 +13,10 @@ func GenerateID() int {
 	id := rand.Intn(max-min) + min
 
 	return id
+}
+
+func SplitDateTime(data string) (string, string) {
+	date := strings.Split(data, "T")
+	time := strings.Split(date[1], "Z")
+	return date[0], time[0]
 }
