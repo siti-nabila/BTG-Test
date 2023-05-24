@@ -69,7 +69,7 @@ func (cst *CustomerRepositoryImpl) AddCustomer(data models.Customer) (int, error
 	}
 	query := "INSERT INTO \"BTG_Schema\".\"Customer\"(\"nationality_id\", \"cst_name\", \"cst_dob\",\"cst_phoneNum\", \"cst_email\") "
 
-	row, errQuery := cst.commonRepository.StoreOne(query, req)
+	row, errQuery := cst.commonRepository.StoreOne(query, "cst_id", req)
 	if errQuery != nil {
 		logger.Error(errQuery)
 		return 0, errQuery

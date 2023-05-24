@@ -30,10 +30,10 @@ type (
 	}
 
 	Customer struct {
-		CustId    int    `json:"CustId,omitempty"` // will use util generate ID
+		CustId    int    `json:"CustId,omitempty"`
 		NatId     int    `json:"NationalityId"`
 		CustName  string `json:"Name"`
-		CustDob   string `json:"DoB"` // format : YYYY-MM-DD
+		CustDob   string `json:"DoB"`
 		CustPhone string `json:"PhoneNo"`
 		CustEmail string `json:"Email"`
 	}

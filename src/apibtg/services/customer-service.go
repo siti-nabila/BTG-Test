@@ -52,24 +52,3 @@ func (cst *CustomerServiceImpl) UpdateCustomerById(data models.Customer) (models
 	return res, nil
 
 }
-
-// func createQuery(table string, params map[string]interface{}) string {
-// 	columns := len(params)
-// 	fieldSlice := make([]string, 0, columns)
-// 	for field, _ := range params {
-// 		fieldSlice = append(fieldSlice, field)
-// 	}
-// 	fields := strings.Join(fieldSlice, ",")
-
-// 	placeholders := prepareQueryPlaceholders(1, columns)
-// 	return fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s) RETURNING %s`, table, fields, placeholders, fields)
-// }
-
-// func prepareQueryPlaceholders(start, quantity int) string {
-// 	placeholders := make([]string, 0, quantity)
-// 	end := start + quantity
-// 	for i := start; i < end; i++ {
-// 		placeholders = append(placeholders, strings.Join([]string{"$", strconv.Itoa(i)}, ""))
-// 	}
-// 	return strings.Join(placeholders, ",")
-// }

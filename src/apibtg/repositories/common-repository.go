@@ -13,7 +13,7 @@ type (
 	CommonRepository interface {
 		FindAll(query string) (*sql.Rows, error)
 		FindById(query string, id int) (*sql.Row, error)
-		StoreOne(query string, data map[int]interface{}) (*sql.Row, error)
+		StoreOne(query, colName string, data map[int]interface{}) (*sql.Row, error)
 		// Update(data Customer) (Customer, error)
 		DeleteById(table, column string, id int) error
 	}
@@ -59,14 +59,14 @@ func (c *CommonRepositoryImpl) FindById(query string, id int) (*sql.Row, error) 
 
 }
 
-func (c *CommonRepositoryImpl) StoreOne(query string, data map[int]interface{}) (*sql.Row, error) {
+func (c *CommonRepositoryImpl) StoreOne(query, colName string, data map[int]interface{}) (*sql.Row, error) {
 	db, errDb := database.GetConnectionBTG()
 	if errDb != nil {
 		logger.Error(errDb)
 		return nil, errDb
 	}
 
-	values := createQuery(data)
+	values := createQuery(colName, data)
 	row := db.QueryRow(query + values)
 	if row.Err() != nil {
 		logger.Error(row.Err())
@@ -91,12 +91,12 @@ func (c *CommonRepositoryImpl) DeleteById(table, column string, id int) error {
 	return nil
 }
 
-func createQuery(params map[int]interface{}) string {
+func createQuery(colName string, params map[int]interface{}) string {
 	valSlice := make([]string, 0, len(params))
 
 	for i := 1; i <= len(params); i++ {
 		valSlice = append(valSlice, fmt.Sprintf("'%v'", params[i]))
 	}
 	values := strings.Join(valSlice, ",")
-	return fmt.Sprintf("VALUES(%v) RETURNING \"cst_id\"", values)
+	return fmt.Sprintf("VALUES(%v) RETURNING \"%v\"", values, colName)
 }

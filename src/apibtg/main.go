@@ -46,13 +46,16 @@ func main() {
 	commonRepo := repos.CreateCommonRepositoryImpl()
 	natRepo := repos.CreateNationalityRepositoryImpl(commonRepo)
 	cstRepo := repos.CreateCustomerRepositoryImpl(commonRepo)
+	famRepo := repos.CreateFamilyRepositoryImpl(commonRepo)
 
 	// Init Services
 	natService := services.CreateNationalityServiceImpl(natRepo)
 	cstService := services.CreateCustomerServiceImpl(cstRepo)
+	famService := services.CreateFamilyServiceImpl(famRepo)
 	// Init Controller
 	controllers.CreateNationalityController(router, natService)
 	controllers.CreateCustomerController(router, cstService)
+	controllers.CreateFamilyController(router, famService)
 	c := cors.AllowAll()
 	handler := c.Handler(router)
 	subhost := host[7:]
