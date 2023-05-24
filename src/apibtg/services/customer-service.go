@@ -52,3 +52,13 @@ func (cst *CustomerServiceImpl) UpdateCustomerById(data models.Customer) (models
 	return res, nil
 
 }
+
+func (cst *CustomerServiceImpl) FindCustomerByIdWithFamily(id int) (models.CustomerFamily, error) {
+	res, errCust := cst.customerRepo.FindCustomerByIdWithChild(id)
+	if errCust != nil {
+		return models.CustomerFamily{}, errCust
+	}
+
+	return res, nil
+
+}

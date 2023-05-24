@@ -109,3 +109,35 @@ func (cst *CustomerRepositoryImpl) DeleteById(id int) error {
 
 	return nil
 }
+
+func (cst *CustomerRepositoryImpl) FindCustomerByIdWithChild(id int) (models.CustomerFamily, error) {
+	var (
+		result models.CustomerFamily
+		family models.Family
+	)
+
+	db, errDb := database.GetConnectionBTG()
+	if errDb != nil {
+		logger.Error(errDb)
+		return models.CustomerFamily{}, errDb
+	}
+
+	query := `SELECT cst."cst_id", "nationality_id", "cst_name" AS "CustName", "cst_dob" AS "CustDoB", "cst_phoneNum" as "PhoneNo", "cst_email" as "CustEmail", "fl_id", "fl_relation", "fl_name" AS "FamName", "fl_dob" AS "FamDoB" FROM "BTG_Schema"."Customer" cst INNER JOIN "BTG_Schema"."family_list" fl ON fl."cst_id" = cst."cst_id" WHERE cst."cst_id" = $1`
+
+	rows, errQuery := db.Query(query, id)
+	if errQuery != nil {
+		logger.Error(errQuery)
+		return models.CustomerFamily{}, nil
+	}
+	defer rows.Close()
+	for rows.Next() {
+		errRows := rows.Scan(&result.Customer.CustId, &result.Customer.NatId, &result.Customer.CustName, &result.Customer.CustDob, &result.Customer.CustPhone, &result.Customer.CustEmail, &family.FamId, &family.FamRel, &family.FamName, &family.FamDob)
+		if errRows != nil {
+			logger.Error(errRows)
+			return models.CustomerFamily{}, errRows
+		}
+
+		result.Family = append(result.Family, family)
+	}
+	return result, nil
+}

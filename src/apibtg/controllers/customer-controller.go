@@ -19,6 +19,7 @@ func CreateCustomerController(router *mux.Router, service models.CustomerService
 	}
 	router.HandleFunc("/customers", cstController.GetAllCustomer).Methods("GET")
 	router.HandleFunc("/customer/{id}", cstController.GetCustomerById).Methods("GET")
+	router.HandleFunc("/customer-fam/{id}", cstController.GetCustomerByIdWithFamily).Methods("GET")
 	router.HandleFunc("/customer", cstController.PostCustomer).Methods("POST")
 	router.HandleFunc("/customer/{id}", cstController.PutCustomerById).Methods("PUT")
 	router.HandleFunc("/customer/{id}", cstController.DeleteCustomerById).Methods("DELETE")
@@ -110,4 +111,18 @@ func (cst *CustController) DeleteCustomerById(rw http.ResponseWriter, req *http.
 	}
 	util.HandleResponse(rw, http.StatusOK, "Data successfully deleted", map[string]interface{}{"result": ""})
 
+}
+
+func (cst *CustController) GetCustomerByIdWithFamily(rw http.ResponseWriter, req *http.Request) {
+	params := mux.Vars(req)
+	id := params["id"]
+	uid, _ := strconv.Atoi(id)
+
+	customer, errCst := cst.customerService.FindCustomerByIdWithFamily(uid)
+	if errCst != nil {
+		util.HandleResponse(rw, http.StatusInternalServerError, "Couldn't get customer list",
+			map[string]interface{}{"results": errCst.Error()})
+		return
+	}
+	util.HandleResponse(rw, http.StatusOK, "Data Found", map[string]interface{}{"result": customer})
 }
